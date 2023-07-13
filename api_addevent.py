@@ -40,11 +40,13 @@ def get_event_list(token, page=None):
         print("API request timed out.")
 
 def print_event_list(token):
+    print("The following are your most recent events")
+    print('\n-_-_-_-_\n')
     list_details = get_event_list(token)
     events = list_details["events"]
-    event_details = [(event['id'], event['title']) for event in events]
-    for event_id, event_name in event_details:
-        print(f"Event ID: {event_id}, Event Name: {event_name}")
+    event_details = [(event['id'], event['title'], event["rsvp_count"] , event["rsvp_attn_going"]) for event in events]
+    for event_id, event_title, event_rsvp_count, event_going in event_details:
+        print(f"Event ID: {event_id}, Event Name: {event_title}; \n Number of RSVPS: {event_rsvp_count},\n Number of RSVPS Going {event_going} \n-_-_-_-_\n ")
        
 def get_rsvps_list(token, event_id, page=None):    
     

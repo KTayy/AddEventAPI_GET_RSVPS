@@ -14,13 +14,16 @@ def loading_animation():
         idx += 1
         time.sleep(0.1)
         
+
+
 def get_event_list(token, page=None):
-    
+    # req; token
+    # pc; creates a dictionary of events {meta:(), events: {}}
     base_url = r"https://www.addevent.com/api/v1/oe/events/list/"
     params = {
         "token": token,
-        "page": page
     }
+    page = 1
     #add animation
     global Loader 
     Loader = False #initialize animation loader
@@ -32,22 +35,32 @@ def get_event_list(token, page=None):
         response = requests.get(base_url, params=params, timeout=10)
         if response.status_code == 200:
             list_details = response.json()
+            next_url = list_details.get("paging", {}).get("next")
+            if next_url:
+                print(f"done with page {page}")
+                page += 1
+
+            
             Loader = True  # Set the flag to indicate event details have been received
-            return list_details
+            return list_details # return dictionary
         else:
             print("Error occurred:", response.text)
     except requests.Timeout:
         print("API request timed out.")
 
+
+
 def print_event_list(token):
-    print("The following are your most recent events")
-    print('\n-_-_-_-_\n')
-    list_details = get_event_list(token)
+    list_details = get_event_list(token) 
     events = list_details["events"]
     event_details = [(event['id'], event['title'], event["rsvp_count"] , event["rsvp_attn_going"]) for event in events]
     for event_id, event_title, event_rsvp_count, event_going in event_details:
         print(f"Event ID: {event_id}, Event Name: {event_title}; \n Number of RSVPS: {event_rsvp_count},\n Number of RSVPS Going {event_going} \n-_-_-_-_\n ")
        
+
+
+
+
 def get_rsvps_list(token, event_id, page=None):    
     
     base_url = r"https://www.addevent.com/api/v1/oe/rsvps/list/"
@@ -86,7 +99,9 @@ def retrieve_all_rsvps(token, event_id):
         # Check if there is a next page
         next_url = event_details.get("paging", {}).get("next")
         if next_url:
+            print(f"done with page {page}, starting {page + 1}")
             page += 1
+            
         else:
             break
     return all_rsvps
